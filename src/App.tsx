@@ -1,25 +1,58 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
+import Board from "./Components/Board/Board";
+import GamePad from "./Components/GamePad/GamePad";
+
+type PositionsData = {
+  playerOnePosition: number;
+  playerTwoPosition: number;
+}
 
 function App() {
+  const [positions, setPositions] = useState({
+    playerOnePosition: 0,
+    playerTwoPosition: 0,
+  });
+
+  const assignPositionDataFunc = (positionsData: PositionsData) => {
+    setPositions(positionsData);
+  };
+
+  const game = {
+    players : ['player1','player2'],
+    gameWinner : () => {
+      if(positions.playerOnePosition === 100)
+      return 'player1' 
+      else if(positions.playerTwoPosition === 100)
+      return 'player2'
+      else
+      return ''
+    }
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <div className="App">
+        {game.gameWinner() === 'player1' && (
+          <>
+            <div className="winner-pop-up">Player One is the Winner</div>
+            <h2 className="reset-game">Reset to play again!!!</h2>
+          </>
+        )}
+        {game.gameWinner() === 'player2' && (
+          <>
+            <div className="winner-pop-up">Player Two is the Winner</div>
+            <h2 className="reset-game">Reset to play again!!!</h2>
+          </>
+        )}
+        {!game.gameWinner() && (
+            <>
+              <Board playerPositions={positions} />
+            </>
+          )}
+        <GamePad passPositionData={assignPositionDataFunc} />
+      </div>
+    </>
   );
 }
 
