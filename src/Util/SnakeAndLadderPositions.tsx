@@ -1,11 +1,14 @@
+//Interface for SnakePositions
 interface ISnakePositions {
     [key:number]:number
 }
 
+//Interface for LadderPositions
 interface ILadderPositions{
     [key:number]:number
 }
 
+//Snake start and end positions
 export const snakePositions:ISnakePositions = {
     22: 11,
     98: 27,
@@ -14,7 +17,8 @@ export const snakePositions:ISnakePositions = {
     67: 39,
     59: 23,
   };
-  
+ 
+// Ladder start and end positions 
 export const ladderPositions:ILadderPositions = {
     10: 21,
     26: 97,

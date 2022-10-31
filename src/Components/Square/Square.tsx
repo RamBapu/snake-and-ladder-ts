@@ -1,29 +1,25 @@
-import React from "react";
+import { useContext } from "react";
 import "./Square.css";
 import LadderImg from "../../Images/Ladder.jpg";
 import SnakeImg from "../../Images/Snake.jpg";
 import HomeImg from "../../Images/Home.png";
-import {
-  snakePositions,
-  ladderPositions,
-} from "../../Util/SnakeAndLadderPositions";
+import { snakePositions, ladderPositions } from "../../Util/SnakeAndLadderPositions";
+import { AppContext } from "../../App";
 
-interface PropsType{
-    squareNumber:number,
-    playerPositions:{
-        playerOnePosition:number,
-        playerTwoPosition:number
-    }
+interface IPropTypes{
+  squareNumber:number
 }
 
-const Square = (props:PropsType) => {
+const Square = (props:IPropTypes) => {
+  const { playerInfo } = useContext(AppContext);
+
   return (
     <>
       <div className="snake-ladder-square">
         <div className="square-number">{props.squareNumber}</div>
-        {props.squareNumber === 100 && (
-          <img className="home-img" src={HomeImg} alt="Home-img" />
-        )}
+
+        {props.squareNumber === 100 && <img className="home-img" src={HomeImg} alt="Home-img" />}
+
         {snakePositions[props.squareNumber] && (
           <>
             <img className="snake-img" src={SnakeImg} alt="Snake-img" />
@@ -40,12 +36,14 @@ const Square = (props:PropsType) => {
             </div>
           </>
         )}
-        {props.playerPositions.playerOnePosition === props.squareNumber && (
-          <div className="coin coin-1"> </div>
-        )}
-        {props.playerPositions.playerTwoPosition === props.squareNumber && (
-          <div className="coin coin-2"> </div>
-        )}
+
+        {playerInfo.map((player) => {
+          return (
+            player.playerPosition === props.squareNumber && (
+              <div className={`coin coin-${player.playerId}`} key={player.playerId} />
+            )
+          );
+        })}
       </div>
     </>
   );

@@ -1,20 +1,18 @@
-import React from "react";
 import Square from "../Square/Square";
 import "./Board.css";
 
-interface PropsType {
-    playerPositions: any;
-}
+const Board = () => {
+  const squareValues: number[] = [];
+  const squareArray: number[] = [];
+  let rows: number = 0;
+  let lastValueOfRow: number = 0;
 
-const Board = (props:PropsType) => {
-  const squareValues:number[] = [];
-  const squareArray:number[] = [];
-  let rows:number = 0;
-  let lastValueOfRow:number = 0;
+  //Generating the square numbers in square array
   for (let squareNum = 100; squareNum > 0; squareNum--) {
     squareArray.push(squareNum);
   }
 
+  //Creating the game numbers in square values array
   for (let squareNum = 0, diffValue = 0; squareNum < 100; squareNum++) {
     if (squareNum % 10 === 0) {
       rows += 1;
@@ -26,18 +24,12 @@ const Board = (props:PropsType) => {
     } else squareValues[squareNum] = squareArray[squareNum];
   }
 
-  const playerOnePosition = props.playerPositions.playerOnePosition;
-  const playerTwoPosition = props.playerPositions.playerTwoPosition;
   return (
     <>
-      <div className="background-panel">
+      <div>
         <div className="snake-ladder-grid">
-          {squareValues.map((squareValue, key) => (
-            <Square
-              key={squareValue}
-              squareNumber={squareValue}
-              playerPositions={{ playerOnePosition, playerTwoPosition }}
-            />
+          {squareValues.map((squareValue) => (
+            <Square key={squareValue} squareNumber={squareValue} />
           ))}
         </div>
       </div>

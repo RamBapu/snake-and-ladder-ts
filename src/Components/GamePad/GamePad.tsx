@@ -1,136 +1,83 @@
-import React, { useState, useEffect } from "react";
+import { useRef } from "react";
 import "./GamePad.css";
 import SnakeLadderImg from "../../Images/Snake-ladder-cover.jpg";
-import {
-  snakePositions,
-  ladderPositions,
-} from "../../Util/SnakeAndLadderPositions";
+import { snakePositions, ladderPositions } from "../../Util/SnakeAndLadderPositions";
+import { useContext } from "react";
+import { AppContext } from "../../App";
+import { game } from "../../Util/Game";
+import { Link } from "react-router-dom";
 
-const playerOneAllPositions:number[] = [];
-const playerTwoAllPositions:number[] = [];
+const GamePad = () => {
+  const { playerInfo, setPlayerInfo } = useContext(AppContext);
+  const diceRef = useRef<HTMLTextAreaElement>(null);
 
-interface PropsType{
-    passPositionData:Function
-}
-
-const GamePad = (props:PropsType) => {
-  const [disable, setDisable] = useState({
-    playerOne: false,
-    playerTwo: false,
-  });
-  const [playerOneRandomDiceCount, setPlayerOneRandomDiceCount] = useState(0);
-  const [playerTwoRandomDiceCount, setPlayerTwoRandomDiceCount] = useState(0);
-  const [playerOnePosition, setPlayerOnePosition] = useState(0);
-  const [playerTwoPosition, setPlayerTwoPosition] = useState(0);
-
-  useEffect(() => {
-    setPlayerOnePosition((prevPlayerOnePosition) => {
-      let newPlayerOnePosition =
-        prevPlayerOnePosition + playerOneRandomDiceCount;
-      if (newPlayerOnePosition <= 100) {
-        if (snakePositions[newPlayerOnePosition])
-          return snakePositions[newPlayerOnePosition];
-        else if (ladderPositions[newPlayerOnePosition])
-          return ladderPositions[newPlayerOnePosition];
-        else return prevPlayerOnePosition + playerOneRandomDiceCount;
-      } else return prevPlayerOnePosition;
+  //In this function,when the dice is rolled Player is set to new player position.
+  const rollDice = () => {
+    let currentPlayer = playerInfo.find((playerEl) => {
+      return playerEl.player === game.whoseTurnToPlay;
     });
-  }, [playerOneRandomDiceCount]);
 
-  useEffect(() => {
-    setPlayerTwoPosition((prevPlayerTwoPosition) => {
-      let newPlayerTwoPosition =
-        prevPlayerTwoPosition + playerTwoRandomDiceCount;
-      if (newPlayerTwoPosition <= 100) {
-        if (snakePositions[newPlayerTwoPosition])
-          return snakePositions[newPlayerTwoPosition];
-        else if (ladderPositions[newPlayerTwoPosition])
-          return ladderPositions[newPlayerTwoPosition];
-        else return prevPlayerTwoPosition + playerTwoRandomDiceCount;
-      } else return prevPlayerTwoPosition;
-    });
-  }, [playerTwoRandomDiceCount]);
+    let maxValue: number = 6;
+    let minValue: number = 0;
+    let diceCount: number = Math.ceil(Math.random() * (maxValue - minValue));
+    diceRef.current!.value = String(diceCount);
 
-  useEffect(() => {
-    buttonClickHandler();
-    playerOneAllPositions.push(playerOnePosition);
-    console.log(playerOneAllPositions);
-    playerTwoAllPositions.push(playerTwoPosition);
-    console.log(playerTwoAllPositions);
-  },);
+    let newPlayerPosition = currentPlayer!.playerPosition + diceCount;
 
-  const rollPlayerOne = () => {
-    setDisable({
-      playerOne: true,
-      playerTwo: false,
-    });
-    let maxValue:number = 6;
-    let minValue:number = 0;
-    let playerOneDice = Math.ceil(Math.random() * (maxValue - minValue));
-    setPlayerOneRandomDiceCount(playerOneDice);
-  };
+    //Player Position is rendered based on snake/ladder.
+    if (newPlayerPosition < 100) {
+      if (snakePositions[newPlayerPosition]) newPlayerPosition = snakePositions[newPlayerPosition];
+      else if (ladderPositions[newPlayerPosition])
+        newPlayerPosition = ladderPositions[newPlayerPosition];
+    } else if (newPlayerPosition > 100) {
+      newPlayerPosition = currentPlayer!.playerPosition;
+    } else {
+      game.gameWinner = currentPlayer!.player;
+    }
 
-  const rollPlayerTwo = () => {
-    setDisable({
-      playerTwo: true,
-      playerOne: false,
-    });
-    let maxValue:number = 6;
-    let minValue:number = 0;
-    let playerTwoDice = Math.ceil(Math.random() * (maxValue - minValue));
-    setPlayerTwoRandomDiceCount(playerTwoDice);
-  };
+    //Setting the Turn of play to the next player.
+    if (currentPlayer!.playerId < game.numberOfPlayers) {
+      game.whoseTurnToPlay = `Player ${currentPlayer!.playerId + 1}`;
+    } else {
+      game.whoseTurnToPlay = `Player 1`;
+    }
 
-  const buttonClickHandler = () => {
-    props.passPositionData({
-      playerOnePosition: playerOnePosition,
-      playerTwoPosition: playerTwoPosition,
-    });
-  };
-
-  const resetGame = () => {
-    setPlayerOnePosition(0);
-    setPlayerTwoPosition(0);
-    setPlayerOneRandomDiceCount(0);
-    setPlayerTwoRandomDiceCount(0);
-    setDisable({
-      playerTwo: false,
-      playerOne: false,
-    });
-    buttonClickHandler();
+    //Setting the Player new position to player info
+    setPlayerInfo((currentPlayerInfo) =>
+      currentPlayerInfo.map((playerEl) => {
+        if (playerEl.playerId === currentPlayer!.playerId) {
+          return { ...playerEl, playerPosition: newPlayerPosition };
+        }
+        return playerEl;
+      })
+    );
   };
 
   return (
     <>
       <div className="game-pad">
         <h2 className="game-title">Snake and Ladder Game</h2>
-        <img
-          className="snake-ladder-img"
-          src={SnakeLadderImg}
-          alt="snake-ladder-img"
-        />
+        <img className="snake-ladder-img" src={SnakeLadderImg} alt="snake-ladder-img" />
         <div className="dices">
-          <div className="box-area">{playerOneRandomDiceCount}</div>
-          <div className="box-area">{playerTwoRandomDiceCount}</div>
+          <textarea className="box-area" ref={diceRef} disabled></textarea>
         </div>
-        <div className="btn">
-          <button
-            className="player1"
-            disabled={disable.playerOne}
-            onClick={rollPlayerOne}
-          >
-            Player 1
-          </button>
-          <button
-            className="player2"
-            disabled={disable.playerTwo}
-            onClick={rollPlayerTwo}
-          >
-            Player 2
-          </button>
+        <div className="player-button-grid">
+          {playerInfo.map((player) => {
+            return (
+              player.playerId && (
+                <button
+                  className={`player${player.playerId} button`}
+                  onClick={rollDice}
+                  disabled={game.whoseTurnToPlay === player.player ? false : true}
+                  key={player.playerId}>{`Player${player.playerId}`}</button>
+              )
+            );
+          })}
         </div>
-        <button className="btn reset" onClick={resetGame}>
-          Reset
+        <button>
+          <Link to="/" className="button reset-btn">
+            Reset
+          </Link>
         </button>
       </div>
     </>
