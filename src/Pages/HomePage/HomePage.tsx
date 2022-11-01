@@ -30,47 +30,54 @@ export const HomePage = () => {
         },
       ]);
     }
+    game.isGameStarted = true;
   }
 
   return (
     <>
       <div className="game">
         <div className="game-name"> Snake and Ladder Game</div>
-        <div className="game-info">Start game by selecting number of players</div>
+        <div className="game-info">
+          Start game by selecting number of players
+        </div>
         <div className="no-of-player-buttons">
           <button
             className="btn "
             onClick={(event) => {
               generatePlayersInfo(event);
-            }}
-            style={{ backgroundColor: game.playerColors[1] }}>
-            2
+            }}>
+            <Link
+              to="/gamepage"
+              className="start"
+              style={{ backgroundColor: game.playerColors[1] }}>
+              2
+            </Link>
           </button>
           <button
             className="btn"
             onClick={(event) => {
               generatePlayersInfo(event);
-            }}
-            style={{ backgroundColor: game.playerColors[2] }}>
-            3
+            }}>
+            <Link
+              to="/gamepage"
+              className="start"
+              style={{ backgroundColor: game.playerColors[2] }}>
+              3
+            </Link>
           </button>
           <button
             className="btn"
             onClick={(event) => {
               generatePlayersInfo(event);
-            }}
-            style={{ backgroundColor: game.playerColors[3] }}>
-            4
+            }}>
+            <Link
+              to="/gamepage"
+              className="start"
+              style={{ backgroundColor: game.playerColors[3] }}>
+              4
+            </Link>
           </button>
         </div>
-        <button
-          onClick={() => {
-            game.isGameStarted = true;
-          }}>
-          <Link to="/gamepage" className="start-btn">
-            Start Game
-          </Link>
-        </button>
       </div>
     </>
   );
